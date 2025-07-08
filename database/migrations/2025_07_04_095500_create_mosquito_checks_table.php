@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('mosquito_checks', function (Blueprint $table) {
             $table->id();
             $table->date('date');
-            $table->string('month_label'); // NOT nullable
             $table->string('D01')->nullable();
             $table->string('D02')->nullable();
             $table->string('D03')->nullable();

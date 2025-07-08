@@ -55,7 +55,11 @@
                             <th>Appâts touché</th>
                             <th>Présence de cadavre</th>
                             <th>Mesure prise</th>
+                              @auth
+                              @if(auth()->user()->role === 'admin')
                             <th>Action</th>
+                               @endif
+                              @endauth
                         </tr>
                     </thead>
                     <tbody>
@@ -65,15 +69,13 @@
                                 <td>{{ $record->bait_touched }}</td>
                                 <td>{{ $record->corpse_present }}</td>
                                 <td>{{ $record->action_taken }}</td>
+                                  @auth
+                                 @if(auth()->user()->role === 'admin')
                                 <td>
-                                    <button class="btn btn-danger btn-sm" onclick="confirmDelete({{ $record->id }})">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                    <form id="delete-form-{{ $record->id }}" action="{{ route('trap-checks.destroy', $record->id) }}" method="POST" style="display: none;">
-                                        @csrf
-                                        @method('DELETE')
-                                    </form>
+                                                <a href="{{ route('trap-checks.raticide.edit', $record->id) }}" class="btn btn-sm btn-warning">✏️ Modifier</a>
                                 </td>
+                                   @endif
+                                @endauth
                             </tr>
                         @endforeach
                     </tbody>

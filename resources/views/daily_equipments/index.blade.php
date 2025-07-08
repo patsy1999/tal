@@ -66,6 +66,55 @@
     @endif
 @endauth
 
+{{-- Custom Range Generate Form - Only for Admin --}}
+@auth
+@if(auth()->user()->role === 'admin')
+    <div class="form-card bg-light-blue">
+        <h5 class="form-title">
+            <i class="bi bi-calendar-range me-2"></i>Génération par plage de dates
+        </h5>
+        <form method="POST" action="{{ route('daily_equipments.generate_range') }}" class="mt-3">
+            @csrf
+            <div class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label for="start_date" class="form-label fw-medium">Date de début :</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control rounded-3" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="end_date" class="form-label fw-medium">Date de fin :</label>
+                    <input type="date" id="end_date" name="end_date" class="form-control rounded-3" required>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-teal w-100 rounded-3 d-flex align-items-center justify-content-center gap-2 py-2">
+                        <i class="bi bi-calendar-plus"></i> Générer la plage
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+@endif
+@endauth
+{{-- PDF Export by Month --}}
+{{-- <div class="form-card bg-light-purple">
+    <h5 class="form-title">
+        <i class="bi bi-file-earmark-pdf me-2"></i>Export PDF (Mois)
+    </h5>
+    <form method="GET" action="{{ route('daily_equipments.pdf_month') }}" class="mt-3">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-8">
+                <label for="pdf_month" class="form-label fw-medium">Sélectionnez un mois :</label>
+                <input type="month" id="pdf_month" name="month" class="form-control rounded-3" required>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-purple w-100 rounded-3 d-flex align-items-center justify-content-center gap-2 py-2">
+                    <i class="bi bi-download"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+</div> --}}
+
+
 
                 {{-- Date Search Form --}}
                 <div class="form-card bg-light-green">
@@ -191,6 +240,51 @@
             @endif
         </div>
     </div>
+    {{-- Previous Month Summary --}}
+@if($lastMonthRecords->isNotEmpty())
+    <div class="results-section mt-5">
+        <h4 class="mb-3">
+            <i class="bi bi-calendar3 me-2 text-info"></i>
+            Résumé du mois précédent : <span class="text-primary">{{ $lastMonthName }}</span>
+        </h4>
+
+        <div class="table-responsive rounded-4 shadow-sm">
+            <table class="table table-striped align-middle mb-0">
+                <thead class="table-info text-center">
+                    <tr>
+                        <th scope="col" class="text-start ps-4">Date</th>
+                        <th scope="col">Équipement</th>
+                        <th scope="col">État</th>
+                        <th scope="col">Observation</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    @foreach($lastMonthRecords as $record)
+                        <tr>
+                            <td class="text-start ps-4">{{ \Carbon\Carbon::parse($record->date)->format('d/m/Y') }}</td>
+                            <td>{{ $record->equipment_name }}</td>
+                            <td>
+                                @if($record->is_good)
+                                    <span class="badge bg-success-bright text-success px-3 py-2 fs-6">
+                                        <i class="bi bi-check-circle-fill me-1"></i> Bon état
+                                    </span>
+                                @else
+                                    <span class="badge bg-danger-bright text-danger px-3 py-2 fs-6">
+                                        <i class="bi bi-exclamation-circle-fill me-1"></i> Problème
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="text-wrap" style="max-width: 400px;">
+                                {{ $record->observation ?? 'RAS' }}
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+@endif
+
 </div>
 
 <style>

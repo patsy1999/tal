@@ -12,7 +12,7 @@ class TemperatureLogController extends Controller
 {
     public function downloadPDF(Request $request)
     {
-        
+
         $validated = $request->validate([
             'date' => 'required|date',
             'data' => 'required|array',
@@ -61,17 +61,35 @@ class TemperatureLogController extends Controller
 
 
     public function showByDate(Request $request)
-{
-    $date = $request->query('date') ?? now()->format('Y-m-d');
+    {
+        $date = $request->query('date') ?? now()->format('Y-m-d');
 
-    $logs = TemperatureLog::where('date', $date)
-        ->orderBy('location')
-        ->orderByRaw("FIELD(time_slot, '08h', '12h', '16h', '20h', '00h', '04h')")
-        ->get()
-        ->groupBy('location');
+        $logs = TemperatureLog::where('date', $date)
+            ->orderBy('location')
+            ->orderByRaw("FIELD(time_slot, '08h', '12h', '16h', '20h', '00h', '04h')")
+            ->get()
+            ->groupBy('location');
 
-    return view('temperature_logs.show', compact('logs', 'date'));
-}
+        // ✅ Get the latest available date (excluding current date)
+        $latestDate = TemperatureLog::where('date', '<>', $date)
+            ->orderByDesc('date')
+            ->value('date');
+
+        $latestLogs = [];
+
+        if ($latestDate) {
+            $latestLogs = TemperatureLog::where('date', $latestDate)
+                ->orderBy('location')
+                ->orderByRaw("FIELD(time_slot, '08h', '12h', '16h', '20h', '00h', '04h')")
+                ->get()
+                ->groupBy('location');
+        }
+
+        return view('temperature_logs.show', compact('logs', 'date', 'latestLogs', 'latestDate'));
+    }
+
+
+
 
 
     protected function getSinForPdf()
@@ -144,7 +162,7 @@ class TemperatureLogController extends Controller
                 ->with('warning', 'Aucune température saisie, mais formulaire enregistré.');
         }
 
-        return redirect()->route('temperature_log.create')
+        return redirect()->route('temperature_log.show')
             ->with('success', "Les températures du <strong>{$date}</strong> ont été enregistrées avec succès.");
     }
 

@@ -12,16 +12,28 @@ use Barryvdh\DomPDF\Facade\Pdf;   // Important!
 class DailyEquipmentController extends Controller
 {
         public function index(Request $request)
-        {
-            $date = $request->query('date');
-            $records = collect(); // ⬅️ this makes an empty Collection instead of an array
+{
+        $date = $request->query('date');
+        $records = collect();
 
-            if ($date) {
-                $records = \App\Models\DailyEquipment::whereDate('date', $date)->get();
-            }
-
-            return view('daily_equipments.index', compact('records', 'date'));
+        if ($date) {
+            $records = DailyEquipment::whereDate('date', $date)->get();
         }
+
+        // 👉 Get records for the previous month
+        $lastMonthStart = Carbon::now()->subMonth()->startOfMonth();
+        $lastMonthEnd = Carbon::now()->subMonth()->endOfMonth();
+
+        $lastMonthRecords = DailyEquipment::whereBetween('date', [$lastMonthStart, $lastMonthEnd])
+            ->orderBy('date')
+            ->orderBy('equipment_name')
+            ->get();
+
+        $lastMonthName = $lastMonthStart->format('F Y'); // e.g., "June 2025"
+
+        return view('daily_equipments.index', compact('records', 'date', 'lastMonthRecords', 'lastMonthName'));
+}
+
 
 
 
@@ -58,29 +70,72 @@ class DailyEquipmentController extends Controller
             return redirect()->route('daily_equipments.index')->with('success', 'Contrôle enregistré avec succès.');
         }
 
-        public function exportMonthlyPdf(Request $request)
+       public function exportMonthlyPdf(Request $request)
+{
+    $month = $request->query('month'); // Format: YYYY-MM
+
+    if (!$month) {
+        return redirect()->route('daily_equipments.index')->with('error', 'Veuillez sélectionner un mois.');
+    }
+
+    [$year, $monthNum] = explode('-', $month);
+
+    $records = DailyEquipment::whereYear('date', $year)
+        ->whereMonth('date', $monthNum)
+        ->orderBy('date')
+        ->orderBy('equipment_name')
+        ->get();
+
+    if ($records->isEmpty()) {
+        return redirect()->route('daily_equipments.index')->with('error', 'Aucun enregistrement pour ce mois.');
+    }
+
+    $pdf = Pdf::loadView('daily_equipments.pdf_month', compact('records', 'month'));
+
+    return $pdf->download("controle_equipements_$month.pdf");
+}
+
+
+        public function generateRange(Request $request)
         {
-            $month = $request->query('month'); // e.g., "2025-07"
-
-            if (!$month) {
-                return redirect()->route('daily_equipments.index')->with('error', 'Veuillez sélectionner un mois.');
+            if (auth()->user()->role !== 'admin') {
+                abort(403, 'Access denied');
             }
 
-            [$year, $monthNum] = explode('-', $month);
+            $request->validate([
+                'start_date' => 'required|date',
+                'end_date' => 'required|date|after_or_equal:start_date',
+            ]);
 
-            $records = \App\Models\DailyEquipment::whereYear('date', $year)
-                ->whereMonth('date', $monthNum)
-                ->orderBy('date')
-                ->get();
+            $start = Carbon::parse($request->input('start_date'));
+            $end = Carbon::parse($request->input('end_date'));
+            $equipments = Equipment::orderBy('name')->get();
 
-            if ($records->isEmpty()) {
-                return redirect()->route('daily_equipments.index')->with('error', 'Aucun enregistrement pour ce mois.');
+            if ($equipments->isEmpty()) {
+                return back()->with('error', 'Aucun équipement disponible.');
             }
 
-            $pdf = Pdf::loadView('daily_equipments.pdf_month', compact('records', 'month'));
+            // Check if any data already exists in that range
+            $alreadyExists = DailyEquipment::whereBetween('date', [$start, $end])->exists();
 
-            return $pdf->download("controle_equipements_$month.pdf");
+            if ($alreadyExists) {
+                return redirect()->route('daily_equipments.index')->with('error', "Des enregistrements existent déjà dans cette plage de dates.");
+            }
+
+            foreach ($start->daysUntil($end->copy()->addDay()) as $day) {
+                foreach ($equipments as $equipment) {
+                    DailyEquipment::create([
+                        'date' => $day->format('Y-m-d'),
+                        'equipment_name' => $equipment->name,
+                        'is_good' => true,
+                        'observation' => 'RAS',
+                    ]);
+                }
+            }
+
+            return redirect()->route('daily_equipments.index')->with('success', "Les données entre {$start->format('d/m/Y')} et {$end->format('d/m/Y')} ont été générées avec succès.");
         }
+
 
 
 

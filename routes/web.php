@@ -156,6 +156,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/daily-equipments/month', [DailyEquipmentController::class, 'showMonth'])->name('daily_equipments.month');
         Route::post('/daily-equipments', [DailyEquipmentController::class, 'store'])->name('daily_equipments.store');
         Route::get('/daily-equipments', [DailyEquipmentController::class, 'index'])->name('daily_equipments.index');
+        Route::post('/daily-equipments/generate-range', [DailyEquipmentController::class, 'generateRange'])->name('daily_equipments.generate_range');
+        Route::get('/daily-equipments/pdf-month', [DailyEquipmentController::class, 'exportMonthlyPdf'])->name('daily_equipments.pdf_month');
+
+
 
         // ==================== CHLORINE CONTROL SYSTEM ==================== //
 
@@ -229,10 +233,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/mosquito/{id}', [MosquitoCheckController::class, 'destroy'])->name('mosquito.destroy');
         Route::post('/mosquito/clear', [MosquitoCheckController::class, 'clear'])->name('mosquito.clear');
 
+
         // ==================== TRAP LOGGING SYSTEM ==================== //
         Route::get('/rat-traps/create', [RatTrapCheckController::class, 'create'])->name('rat-traps.create');
         Route::post('/rat-traps/store', [RatTrapCheckController::class, 'store'])->name('rat-traps.store');
         Route::get('/rat-traps', [RatTrapCheckController::class, 'index'])->name('rat-traps.index');
+        // Show edit form for a single rat trap record by ID
+        Route::get('/trap-checks/raticide/{id}/edit', [TrapCheckController::class, 'editRaticide'])->name('trap-checks.raticide.edit');
+        Route::put('/trap-checks/raticide/{id}', [TrapCheckController::class, 'updateRaticide'])->name('trap-checks.raticide.update');
+
+        // Similarly for mecanique if needed
+        Route::get('/trap-checks/mecanique/{id}/edit', [TrapCheckController::class, 'editMecanique'])->name('trap-checks.mecanique.edit');
+        Route::put('/trap-checks/mecanique/{id}', [TrapCheckController::class, 'updateMecanique'])->name('trap-checks.mecanique.update');
+
+
+
 
         // ==================== MECHANICAL TRAP CHECKS ==================== //
 

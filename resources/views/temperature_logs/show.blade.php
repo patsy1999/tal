@@ -120,7 +120,62 @@
                     </table>
                 </div>
             @endif
+            @if (!empty($latestLogs) && count($latestLogs))
+    <div class="mt-5 pt-4 border-top">
+        <h4 class="mb-3">
+            <i class="fas fa-clock me-2 text-secondary"></i>
+            Derniers enregistrements disponibles ({{ $latestDate }})
+        </h4>
+
+        <div class="table-container">
+            <table class="temperature-table">
+                <thead>
+                    <tr class="table-header-row">
+                        <th class="location-col">Zone</th>
+                        @foreach ($timeSlots as $slot)
+                            <th class="time-slot-col" colspan="2">
+                                <span class="time-slot">{{ $slot }}</span>
+                            </th>
+                        @endforeach
+                    </tr>
+                    <tr class="subheader-row">
+                        <th></th>
+                        @foreach ($timeSlots as $slot)
+                            <th class="value-type">VL</th>
+                            <th class="value-type">VM</th>
+                        @endforeach
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($latestLogs as $location => $entries)
+                        @php
+                            $dataBySlot = $entries->keyBy('time_slot');
+                        @endphp
+                        <tr class="data-row">
+                            <td class="location-name">{{ $location }}</td>
+                            @foreach ($timeSlots as $slot)
+                                @php
+                                    $entry = $dataBySlot[$slot] ?? null;
+                                    $vl = $entry->vl ?? '−';
+                                    $vm = $entry->vm ?? '−';
+                                @endphp
+                                <td class="temperature-value @if($vl !== '−') has-value @endif">
+                                    {{ $vl }}
+                                </td>
+                                <td class="temperature-value @if($vm !== '−') has-value @endif">
+                                    {{ $vm }}
+                                </td>
+                            @endforeach
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
+    </div>
+@endif
+
+        </div>
+
     </div>
 </div>
 
