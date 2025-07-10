@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: laravel-tal
+    env: docker
+    plan: free
+    branch: main
+    dockerfilePath: ./Dockerfile
+    buildCommand: ""
+    startCommand: php artisan serve --host=0.0.0.0 --port=8080
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_KEY
+        value: # leave blank for now
+      - key: APP_DEBUG
+        value: false
+      - key: APP_URL
+        value: https://laravel-tal.onrender.com
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        value: your-db-host
+      - key: DB_PORT
+        value: 5432
+      - key: DB_DATABASE
+        value: your-db-name
+      - key: DB_USERNAME
+        value: your-db-username
+      - key: DB_PASSWORD
+        value: your-db-password
