@@ -173,7 +173,66 @@
         </div>
     </div>
 @endif
+{{-- Existing content (keep this part) --}}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Location</th>
+            <th>08h</th>
+            <th>12h</th>
+            <th>16h</th>
+            <th>20h</th>
+            <th>00h</th>
+            <th>04h</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($logs as $location => $locationLogs)
+            <tr>
+                <td>{{ $location }}</td>
+                @foreach(['08h', '12h', '16h', '20h', '00h', '04h'] as $timeSlot)
+                    @php
+                        $log = $locationLogs->firstWhere('time_slot', $timeSlot);
+                    @endphp
+                    <td>{{ $log ? $log->temperature : '-' }}</td>
+                @endforeach
+            </tr>
+        @endforeach
+    </tbody>
+</table>
 
+{{-- Add this new section for latest logs --}}
+@if($latestLogs && count($latestLogs))
+<div class="mt-5">
+    <h4>Previous Data ({{ $latestDate }})</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Location</th>
+                <th>08h</th>
+                <th>12h</th>
+                <th>16h</th>
+                <th>20h</th>
+                <th>00h</th>
+                <th>04h</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($latestLogs as $location => $locationLogs)
+                <tr>
+                    <td>{{ $location }}</td>
+                    @foreach(['08h', '12h', '16h', '20h', '00h', '04h'] as $timeSlot)
+                        @php
+                            $log = $locationLogs->firstWhere('time_slot', $timeSlot);
+                        @endphp
+                        <td>{{ $log ? $log->temperature : '-' }}</td>
+                    @endforeach
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+@endif
         </div>
 
     </div>

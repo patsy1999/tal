@@ -19,6 +19,11 @@
                         <i class="fas fa-tachometer-alt mr-1"></i>
                         Dashboard
                     </x-nav-link>
+                        <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')" class="flex items-center space-x-2">
+                        <i class="fas fa-cubes mr-1"></i>
+                        Manage Products
+                    </x-nav-link>
+
                    <x-nav-link :href="route('dashboard.links')" :active="request()->routeIs('dashboard.links')">
                     <i class="fas fa-route mr-1"></i>
                     Tracking
@@ -84,9 +89,15 @@
                 <i class="fas fa-home mr-2"></i> Dashboard
             </x-responsive-nav-link>
 
-            <x-responsive-nav-link :href="route('temperature_log.create')" :active="request()->routeIs('temperature_log.create')">
-                <i class="fas fa-temperature-low mr-2"></i> Saisie Température
-            </x-responsive-nav-link>
+         <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')" class="flex items-center space-x-2">
+            <i class="fas fa-cubes mr-1"></i>
+            Manage Products
+        </x-nav-link>
+         <x-nav-link :href="route('dashboard.links')" :active="request()->routeIs('dashboard.links')">
+                    <i class="fas fa-route mr-1"></i>
+                    Tracking
+                </x-nav-link>
+
         </div>
 
         <div class="pt-4 pb-1 border-t border-gray-200">

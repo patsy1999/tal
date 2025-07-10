@@ -30,7 +30,14 @@ public function index(Request $request)
         return Carbon::parse($item->calibration_date)->toDateString();
     });
 
-    return view('calibrations.index', compact('calibrationsByDate', 'date'));
+    // Get latest calibration date (excluding current date if filtered)
+    $latestCalibrationDate = Calibration::when($date, function($query) use ($date) {
+            $query->where('calibration_date', '<>', $date);
+        })
+        ->orderByDesc('calibration_date')
+        ->value('calibration_date');
+
+    return view('calibrations.index', compact('calibrationsByDate', 'date', 'latestCalibrationDate'));
 }
 
 

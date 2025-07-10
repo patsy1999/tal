@@ -350,5 +350,79 @@
             @endif
         </div>
     </div>
+    @if($latestCalibrationDate)
+<div class="last-entry-info">
+    <div class="info-card">
+        <div class="info-header">
+            <i class="fas fa-info-circle"></i>
+            <h4>Dernier enregistrement</h4>
+        </div>
+        <p>La dernière date d'étalonnage enregistrée est le
+            <strong>{{ \Carbon\Carbon::parse($latestCalibrationDate)->format('d/m/Y') }}</strong>
+        </p>
+        @if($date)
+        <p class="mt-2">
+            <a href="{{ route('calibrations.index', ['date' => $latestCalibrationDate]) }}" class="view-link">
+                <i class="fas fa-eye"></i> Voir cet étalonnage
+            </a>
+        </p>
+        @endif
+    </div>
+</div>
+
+<style>
+    .last-entry-info {
+        margin-top: 30px;
+    }
+
+    .info-card {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        border-left: 4px solid var(--primary);
+    }
+
+    .info-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+        color: var(--primary);
+    }
+
+    .info-header i {
+        font-size: 20px;
+    }
+
+    .info-header h4 {
+        margin: 0;
+        font-size: 16px;
+    }
+
+    .info-card p {
+        margin: 0;
+        color: var(--text-light);
+    }
+
+    .view-link {
+        color: var(--primary);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: color 0.2s;
+    }
+
+    .view-link:hover {
+        color: var(--primary-light);
+        text-decoration: underline;
+    }
+
+    .view-link i {
+        font-size: 14px;
+    }
+</style>
+@endif
 </body>
 </html>
