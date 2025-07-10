@@ -1,0 +1,16 @@
+[env]
+APP_ENV = "production"
+APP_KEY = "..."         # optional: set it or generate during deploy
+DB_CONNECTION = "sqlite"  # or whatever your DB is
+DB_DATABASE = "..."       # set path or connection string
+
+[build]
+  dockerfile = "Dockerfile"
+
+[[services]]
+  internal_port = 80
+  protocol = "tcp"
+
+  [[services.ports]]
+    handlers = ["http"]
+    port = 80
